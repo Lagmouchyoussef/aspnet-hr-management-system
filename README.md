@@ -14,7 +14,7 @@
 
 <br/>
 
-<img src="https://raw.githubusercontent.com/github/explore/main/topics/asp-net/asp-net.png" width="90" alt="ASP.NET" />
+<img src="https://raw.githubusercontent.com/github/explore/main/topics/aspnet/aspnet.png" width="90" alt="ASP.NET" />
 &nbsp;&nbsp;
 <img src="https://raw.githubusercontent.com/github/explore/main/topics/csharp/csharp.png" width="90" alt="C#" />
 &nbsp;&nbsp;
@@ -34,6 +34,7 @@
 - [📂 Project Structure](#-project-structure)
 - [🚀 Getting Started](#-getting-started)
 - [🛠️ Build It From Scratch in Visual Studio Enterprise 2026 Insiders](#️-build-it-from-scratch-in-visual-studio-enterprise-2026-insiders)
+- [📚 Learn & Build Your Own Exercise](#-learn--build-your-own-exercise)
 - [🗄️ Database Notes](#️-database-notes)
 - [🧭 Roadmap](#-roadmap)
 - [🤝 Contributing](#-contributing)
@@ -65,17 +66,41 @@ It's built with classic **ASP.NET Web Forms** on top of **Entity Framework 6 (Co
 
 ## 🎥 Demo
 
-<div align="center">
+Real screenshots from a live run of the app (IIS Express + LocalDB) — the plain, unstyled Web Forms UI in action. 📸
 
-> 🖼️ _Add a screenshot or screen recording of the app here!_
->
-> `docs/demo.gif` — e.g. record the Departments/Employees CRUD flow with [ScreenToGif](https://www.screentogif.com/) or [ShareX](https://getsharex.com/) and drop it into a `docs/` folder, then reference it like this:
->
-> ```md
-> ![Demo](docs/demo.gif)
-> ```
+<details open>
+<summary><strong>1️⃣ Departments overview</strong> — the <code>GvDepartement</code> grid listing existing departments</summary>
+<br/>
 
-</div>
+![Departments overview](docs/screenshots/01-departments-overview.png)
+
+</details>
+
+<details>
+<summary><strong>2️⃣ Add Department</strong> — a new <code>Finance</code> department appears instantly after <strong>Add Department</strong></summary>
+<br/>
+
+![Add department result](docs/screenshots/02-add-department-result.png)
+
+</details>
+
+<details>
+<summary><strong>3️⃣ Select → Employees by department</strong> — selecting <code>Engineering</code> fills the form and filters <code>GvSalarie</code> to its employees</summary>
+<br/>
+
+![Employees filtered by department](docs/screenshots/03-employees-by-department.png)
+
+</details>
+
+<details>
+<summary><strong>4️⃣ Update Department</strong> — editing & saving <code>Finance</code>'s location updates the grid in place</summary>
+<br/>
+
+![Update department result](docs/screenshots/04-update-department-result.png)
+
+</details>
+
+> 🎬 Want an animated demo too? Record the CRUD flow with [ScreenToGif](https://www.screentogif.com/) or [ShareX](https://getsharex.com/), save it as `docs/demo.gif`, and add `![Demo](docs/demo.gif)` here.
 
 ---
 
@@ -95,20 +120,38 @@ It's built with classic **ASP.NET Web Forms** on top of **Entity Framework 6 (Co
 
 ## 🗺️ Domain Model
 
-```text
-┌───────────────────────────┐        1      N      ┌───────────────────────────┐
-│        Departement        │───────────────────────│          Salarie          │
-├───────────────────────────┤                       ├───────────────────────────┤
-│ DepartementId   (PK, int) │                       │ SalarieId      (PK, int)  │
-│ Description     (string)  │                       │ Nom            (string)   │
-│ Location        (string)  │                       │ Prenom         (string)   │
-│ SalraieListe    (IList)   │                       │ Fonction       (string)   │
-└───────────────────────────┘                       │ Salaire        (double)   │
-                                                      │ DepartementId  (FK, int)  │
-                                                      └───────────────────────────┘
+```mermaid
+classDiagram
+    direction LR
+
+    class DbSalarieContext {
+        <<DbContext>>
+        +DbSet~Departement~ Departement
+        +DbSet~Salarie~ Salarie
+    }
+
+    class Departement {
+        +int DepartementId
+        +string Description
+        +string Location
+        +IList~Salarie~ SalraieListe
+    }
+
+    class Salarie {
+        +int SalarieId
+        +string Nom
+        +string Prenom
+        +string Fonction
+        +double Salaire
+        +int DepartementId
+    }
+
+    DbSalarieContext "1" --> "*" Departement : DbSet
+    DbSalarieContext "1" --> "*" Salarie : DbSet
+    Departement "1" --o "0..*" Salarie : employs
 ```
 
-🧠 `DbSalarieContext` (in [`Models/EmployeeDatabaseContext.cs`](Models/EmployeeDatabaseContext.cs)) exposes `DbSet<Departement>` and `DbSet<Salarie>`, and reads the `MyDbConnection` connection string from `Web.config`.
+🧠 `DbSalarieContext` (in [`Models/EmployeeDatabaseContext.cs`](Models/EmployeeDatabaseContext.cs)) exposes `DbSet<Departement>` and `DbSet<Salarie>`, and reads the `MyDbConnection` connection string from `Web.config`. Each `Departement` owns zero or more `Salarie` records via the `DepartementId` foreign key.
 
 ---
 
@@ -272,6 +315,58 @@ Open `Web.config` and add the connection string inside `<connectionStrings>`:
 1. Press **F5** to build & launch with **IIS Express**. 🚀
 2. Visual Studio builds the project, starts IIS Express, and opens the start page in your default browser.
 3. Verify departments/employees load correctly, and that create/update/delete actions all work. ✅
+
+---
+
+## 📚 Learn & Build Your Own Exercise
+
+Never built a database-driven web app before? Here's a self-contained learning path 🎓 — follow it and you'll come out with your own working Code First exercise, not just a copy of this one.
+
+### 🧩 Step 1 — Learn the fundamentals (a few hours)
+
+| Topic | Why you need it | Where to learn it |
+|---|---|---|
+| 🧑‍💻 **C# basics** | Classes, properties, collections | [Microsoft Learn — C# fundamentals](https://learn.microsoft.com/dotnet/csharp/tour-of-csharp/) |
+| 🌐 **ASP.NET Web Forms** | Pages, controls, postbacks, the page life cycle | [Microsoft Learn — Web Forms overview](https://learn.microsoft.com/aspnet/web-forms/) |
+| 🗃️ **Entity Framework 6 (Code First)** | Mapping C# classes to database tables | [EF6 — Code First to a New Database](https://learn.microsoft.com/ef/ef6/modeling/code-first/workflows/new-database) |
+| 🛢️ **Relational databases 101** | Primary/foreign keys, one-to-many relationships | [Microsoft Learn — Relational data concepts](https://learn.microsoft.com/training/modules/design-a-data-model/) |
+
+### 🧪 Step 2 — Study this project as a reference
+
+1. Read [`Models/Department.cs`](Models/Department.cs) and [`Models/Employee.cs`](Models/Employee.cs) — two plain C# classes with no database code at all.
+2. Read [`Models/EmployeeDatabaseContext.cs`](Models/EmployeeDatabaseContext.cs) — notice how little code it takes for EF to turn those classes into database tables.
+3. Open [`DepartmentManagement.aspx.cs`](DepartmentManagement.aspx.cs) and trace one full action, e.g. `BtAdd_Click` → `DbContext.Departement.Add(...)` → `DbContext.SaveChanges()` → grid rebind. That's the entire Create flow in 4 lines.
+4. Run the project yourself (see [🚀 Getting Started](#-getting-started)) and watch the grids update live as you add data.
+
+### 🏗️ Step 3 — Design your own exercise
+
+Pick a different real-world domain and repeat the same pattern (one "parent" entity, one "child" entity, a one-to-many relationship):
+
+| Your idea | Parent entity | Child entity |
+|---|---|---|
+| 📚 Library system | `Author` | `Book` |
+| 🎬 Movie catalog | `Director` | `Movie` |
+| 🏥 Clinic management | `Doctor` | `Appointment` |
+| 🛒 Order system | `Customer` | `Order` |
+| 🏫 School management | `Teacher` | `Course` |
+
+For each, define:
+- Two plain C# model classes (parent + child), with the child holding a foreign key to the parent.
+- A `DbContext` subclass exposing a `DbSet<T>` for each entity.
+- A connection string in `Web.config` pointing at your own LocalDB database name.
+- A Web Form with a `GridView` + input controls + buttons wired to `Add` / `Update` / `Delete` / `SaveChanges`, exactly like `DepartmentManagement.aspx.cs` in this repo.
+
+### ✅ Step 4 — Build it in Visual Studio Enterprise 2026 Insiders
+
+Follow the [🛠️ Build It From Scratch](#️-build-it-from-scratch-in-visual-studio-enterprise-2026-insiders) walkthrough above, but swap in **your own** entities, connection string and form fields instead of `Departement` / `Salarie`. If you get stuck, come back and compare against the corresponding file in this repo — that's exactly what it's here for. 🧭
+
+### 🏁 Step 5 — Level up
+
+Once your exercise works end-to-end:
+- Add a third entity and a second relationship (e.g. `Book` ↔ `Genre`).
+- Try EF6 **Migrations** instead of the default Code First database creation.
+- Add simple validation (`RequiredFieldValidator`, `CompareValidator`) to the form.
+- Style the UI with Bootstrap, following the [Roadmap](#-roadmap) below.
 
 ---
 
