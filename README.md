@@ -126,7 +126,6 @@ Real screenshots from a live run of the app (IIS Express + LocalDB) — the plai
 
 </details>
 
-> 🎬 Want an animated demo too? Record the CRUD flow with [ScreenToGif](https://www.screentogif.com/) or [ShareX](https://getsharex.com/), save it as `docs/demo.gif`, and add `![Demo](docs/demo.gif)` here.
 
 ---
 
