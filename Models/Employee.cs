@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 public class Salarie
 {
@@ -8,4 +9,6 @@ public class Salarie
     public String Fonction { get; set; }
     public Double Salaire { get; set; }
     public Int32 DepartementId { get; set; }
+
+    public virtual ICollection<LeaveRequest> LeaveRequests { get; set; }
 }

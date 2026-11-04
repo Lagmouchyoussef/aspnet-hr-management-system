@@ -74,7 +74,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include=".gitignore" />
     <Content Include="DepartmentManagement.aspx" />
+    <Content Include="EmployeeLeaveManagement.aspx" />
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -86,16 +88,26 @@
     <Compile Include="DepartmentManagement.aspx.designer.cs">
       <DependentUpon>DepartmentManagement.aspx</DependentUpon>
     </Compile>
+    <Compile Include="EmployeeLeaveManagement.aspx.cs">
+      <DependentUpon>EmployeeLeaveManagement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EmployeeLeaveManagement.aspx.designer.cs">
+      <DependentUpon>EmployeeLeaveManagement.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\EmployeeDatabaseContext.cs" />
     <Compile Include="Models\Department.cs" />
     <Compile Include="Models\Employee.cs" />
+    <Compile Include="Models\LeaveRequest.cs" />
+    <Compile Include="Models\LeaveRequestDatabaseInitializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <Content Include="README.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

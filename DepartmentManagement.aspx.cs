@@ -11,15 +11,12 @@ namespace WebAppCodeFirst
         {
             if (!Page.IsPostBack)
             {
-                if (DbContext.Departement.Count() > 0)
-                {
-                    GvDepartement.DataSource = DbContext.Departement.ToList();
-                    GvDepartement.DataBind();
-                    DDLDepartement.DataSource = DbContext.Departement.ToList();
-                    DDLDepartement.DataTextField = "Description";
-                    DDLDepartement.DataValueField = "DepartementId";
-                    DDLDepartement.DataBind();
-                }
+                GvDepartement.DataSource = DbContext.Departement.ToList();
+                GvDepartement.DataBind();
+                DDLDepartement.DataSource = DbContext.Departement.ToList();
+                DDLDepartement.DataTextField = "Description";
+                DDLDepartement.DataValueField = "DepartementId";
+                DDLDepartement.DataBind();
             }
         }
 
@@ -31,9 +28,6 @@ namespace WebAppCodeFirst
             TbId.Text = MonDep.DepartementId.ToString();
             TbDescription.Text = MonDep.Description;
             TbLocalisation.Text = MonDep.Location;
-            Int32 Val = int.Parse(GvDepartement.SelectedValue.ToString());
-            GvSalarie.DataSource = DbContext.Salarie.Where(s => s.DepartementId == Val).Select(s => new { s.SalarieId, s.Nom, s.Prenom, s.Fonction, s.Salaire }).ToList();
-            GvSalarie.DataBind();
         }
 
         protected void BtAdd_Click(object sender, EventArgs e)
@@ -89,15 +83,5 @@ namespace WebAppCodeFirst
             DbContext.SaveChanges();
         }
 
-        protected void GvSalarie_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            Salarie NewSalarie = new Salarie();
-            NewSalarie = DbContext.Salarie.Find(GvSalarie.SelectedValue);
-            TbPrenom.Text = NewSalarie.Prenom;
-            TbNom.Text = NewSalarie.Nom;
-            TbSalaire.Text = NewSalarie.Salaire.ToString();
-            TbFonction.Text = NewSalarie.Fonction;
-            DDLDepartement.SelectedValue = NewSalarie.DepartementId.ToString();
-        }
     }
 }

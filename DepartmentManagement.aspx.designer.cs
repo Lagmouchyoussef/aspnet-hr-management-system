@@ -24,15 +24,6 @@ namespace WebAppCodeFirst
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// LblMessage control.
-        /// </summary>
-        /// <remarks>
-        /// Automatically generated field.
-        /// To modify, move the field declaration from the designer file to the code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label LblMessage;
-
-        /// <summary>
         /// GvDepartement control.
         /// </summary>
         /// <remarks>
@@ -239,13 +230,5 @@ namespace WebAppCodeFirst
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button BtDeletteSalarie;
 
-        /// <summary>
-        /// GvSalarie control.
-        /// </summary>
-        /// <remarks>
-        /// Automatically generated field.
-        /// To modify, move the field declaration from the designer file to the code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView GvSalarie;
     }
 }

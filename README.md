@@ -57,8 +57,10 @@ It's built with classic **ASP.NET Web Forms** on top of **Entity Framework 6 (Co
 
 - 🏬 **Department management** — create, edit, delete and list departments, each with a location.
 - 👥 **Employee management** — add employees, assign them to a department, and record their job title and salary.
-- 🔗 **Relational data** — employees are linked to departments via a foreign key, fully modeled in C#.
+- 🏖️ **Employee leave management** *(new)* — a dedicated page listing every employee (with their department) alongside a full leave-request workflow: submit a request for an employee, pick a start/end date and a status (`Pending` / `Approved` / `Rejected`), then select any request in the grid to update or delete it.
+- 🔗 **Relational data** — employees are linked to departments via a foreign key, and leave requests are linked to employees the same way, all modeled in plain C#.
 - 🧬 **Code First database generation** — the `MaBaseSalarie` database and its schema are created and kept in sync automatically by Entity Framework.
+- 🔄 **Self-upgrading schema** *(new)* — a custom `LeaveRequestDatabaseInitializer` adds the `LeaveRequests` table to an *already existing* `MaBaseSalarie` database on first run, so upgrading from an older copy of this project needs zero manual migration steps.
 - ⚡ **Zero manual setup** — no SQL scripts to run; just point it at LocalDB and go.
 - 🪶 **Lightweight & dependency-light** — only EF6 and the Roslyn CodeDom provider as NuGet dependencies.
 
@@ -100,6 +102,30 @@ Real screenshots from a live run of the app (IIS Express + LocalDB) — the plai
 
 </details>
 
+<details>
+<summary><strong>5️⃣ Employee List & Leave Requests</strong> — the new <code>EmployeeLeaveManagement.aspx</code> page, reachable from the <strong>Employee List and Leave Requests</strong> link on the HR Management page</summary>
+<br/>
+
+![Leave management overview](docs/screenshots/05-leave-management-overview.png)
+
+</details>
+
+<details>
+<summary><strong>6️⃣ Add Leave Request</strong> — submitting two requests for different employees fills the <code>GvLeaveRequests</code> grid with their dates, reason and status</summary>
+<br/>
+
+![Add leave request result](docs/screenshots/06-add-leave-request-result.png)
+
+</details>
+
+<details>
+<summary><strong>7️⃣ Select → Update a Leave Request</strong> — selecting a row in the grid loads it back into the form for editing or deletion</summary>
+<br/>
+
+![Select leave request](docs/screenshots/07-select-leave-request.png)
+
+</details>
+
 > 🎬 Want an animated demo too? Record the CRUD flow with [ScreenToGif](https://www.screentogif.com/) or [ShareX](https://getsharex.com/), save it as `docs/demo.gif`, and add `![Demo](docs/demo.gif)` here.
 
 ---
@@ -128,6 +154,7 @@ classDiagram
         <<DbContext>>
         +DbSet~Departement~ Departement
         +DbSet~Salarie~ Salarie
+        +DbSet~LeaveRequest~ LeaveRequests
     }
 
     class Departement {
@@ -146,12 +173,23 @@ classDiagram
         +int DepartementId
     }
 
+    class LeaveRequest {
+        +int LeaveRequestId
+        +int SalarieId
+        +DateTime StartDate
+        +DateTime EndDate
+        +string Reason
+        +string Status
+    }
+
     DbSalarieContext "1" --> "*" Departement : DbSet
     DbSalarieContext "1" --> "*" Salarie : DbSet
+    DbSalarieContext "1" --> "*" LeaveRequest : DbSet
     Departement "1" --o "0..*" Salarie : employs
+    Salarie "1" --o "0..*" LeaveRequest : requests
 ```
 
-🧠 `DbSalarieContext` (in [`Models/EmployeeDatabaseContext.cs`](Models/EmployeeDatabaseContext.cs)) exposes `DbSet<Departement>` and `DbSet<Salarie>`, and reads the `MyDbConnection` connection string from `Web.config`. Each `Departement` owns zero or more `Salarie` records via the `DepartementId` foreign key.
+🧠 `DbSalarieContext` (in [`Models/EmployeeDatabaseContext.cs`](Models/EmployeeDatabaseContext.cs)) exposes the department, employee, and leave-request sets, and reads the `MyDbConnection` connection string from `Web.config`. Each leave request belongs to one employee through `SalarieId`.
 
 ---
 
@@ -159,13 +197,18 @@ classDiagram
 
 ```text
 WebAppCodeFirst/
-├── 📄 DepartmentManagement.aspx            # Departments & employees UI (markup)
-├── 🧠 DepartmentManagement.aspx.cs         # Code-behind: CRUD logic
+├── 📄 DepartmentManagement.aspx            # Department management page
+├── 🧠 DepartmentManagement.aspx.cs         # Department and employee creation logic
 ├── ⚙️ DepartmentManagement.aspx.designer.cs
+├── 📄 EmployeeLeaveManagement.aspx        # Employee list and leave requests page
+├── 🧠 EmployeeLeaveManagement.aspx.cs     # Employee list and leave request logic
+├── ⚙️ EmployeeLeaveManagement.aspx.designer.cs
 ├── 🧵 Global.asax / Global.asax.cs         # Application lifecycle events
 ├── 📁 Models/
 │   ├── 🏬 Department.cs                    # Departement entity
 │   ├── 👤 Employee.cs                      # Salarie entity
+│   ├── 🗓️ LeaveRequest.cs                  # Employee leave request entity
+│   ├── 🔄 LeaveRequestDatabaseInitializer.cs # Adds the LeaveRequests table to an existing DB
 │   └── 🗃️ EmployeeDatabaseContext.cs       # EF Code First DbContext
 ├── 📁 Properties/
 │   └── AssemblyInfo.cs
@@ -173,8 +216,11 @@ WebAppCodeFirst/
 ├── 🔧 Web.config / Web.Debug.config / Web.Release.config
 ├── 📦 packages.config                      # NuGet packages (EF6, CodeDom providers)
 ├── 🏗️ WebAppCodeFirst.csproj
-└── 🧩 WebAppCodeFirst.slnx
+├── 🧩 WebAppCodeFirst.slnx
+└── 🧩 WebAppCodeFirst.sln                  # Classic solution file — open this one (see note below)
 ```
+
+> ⚠️ **Open `WebAppCodeFirst.sln`, not `WebAppCodeFirst.slnx`.** The new XML solution format (`.slnx`) doesn't yet reliably carry this project's ASP.NET Web Application debug settings (IIS Express launch, start page) — opening it can make Visual Studio try to run the compiled `WebAppCodeFirst.dll` directly instead of starting it through IIS Express, which fails with *"...is not a valid Win32 application"*.
 
 ---
 
@@ -196,7 +242,7 @@ WebAppCodeFirst/
 git clone https://github.com/Lagmouchyoussef/aspnet-hr-management-system.git
 ```
 
-2️⃣ Open `WebAppCodeFirst.slnx` in Visual Studio.
+2️⃣ Open `WebAppCodeFirst.sln` in Visual Studio (⚠️ not the `.slnx` — see the note in [Project Structure](#-project-structure)).
 
 3️⃣ Restore NuGet packages — right-click the solution in **Solution Explorer** → **Restore NuGet Packages** (pulls in `EntityFramework 6.5.2` and `Microsoft.CodeDom.Providers.DotNetCompilerPlatform`).
 
@@ -336,7 +382,9 @@ Never built a database-driven web app before? Here's a self-contained learning p
 1. Read [`Models/Department.cs`](Models/Department.cs) and [`Models/Employee.cs`](Models/Employee.cs) — two plain C# classes with no database code at all.
 2. Read [`Models/EmployeeDatabaseContext.cs`](Models/EmployeeDatabaseContext.cs) — notice how little code it takes for EF to turn those classes into database tables.
 3. Open [`DepartmentManagement.aspx.cs`](DepartmentManagement.aspx.cs) and trace one full action, e.g. `BtAdd_Click` → `DbContext.Departement.Add(...)` → `DbContext.SaveChanges()` → grid rebind. That's the entire Create flow in 4 lines.
-4. Run the project yourself (see [🚀 Getting Started](#-getting-started)) and watch the grids update live as you add data.
+4. Read [`EmployeeLeaveManagement.aspx.cs`](EmployeeLeaveManagement.aspx.cs) for a slightly richer example: `BtSaveLeaveRequest_Click` reuses the *same* button handler for both **Add** and **Update** (it checks `sender == BtUpdateLeaveRequest`), and `BindLeaveRequests()` shows a `.Include(...)` eager-load plus an in-memory `Select(...)` projection to flatten the employee's name onto each grid row.
+5. Look at [`Models/LeaveRequestDatabaseInitializer.cs`](Models/LeaveRequestDatabaseInitializer.cs) to see how a new table can be bolted onto an existing Code First database with a plain `ExecuteSqlCommand`, without reaching for full EF Migrations.
+6. Run the project yourself (see [🚀 Getting Started](#-getting-started)) and watch the grids update live as you add data.
 
 ### 🏗️ Step 3 — Design your own exercise
 

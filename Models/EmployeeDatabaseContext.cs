@@ -8,4 +8,5 @@ public class DbSalarieContext : DbContext
 
     public DbSet<Departement> Departement { get; set; }
     public DbSet<Salarie> Salarie { get; set; }
+    public DbSet<LeaveRequest> LeaveRequests { get; set; }
 }
